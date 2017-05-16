@@ -1,4 +1,18 @@
 
+// node js stuffs.
+(function () {
+  var clientId = document.createElement("div");
+  clientId.setAttribute("id", 'client-id');
+  document.body.appendChild(clientId);
+
+  var space = io.connect(location.origin + '/space');
+  space.on('clientId', function (data) {
+    var div = document.getElementById('client-id');
+    div.innerHTML = data;
+  });
+
+})()
+
 function Space(options){
 
   var scope = this;
@@ -6,8 +20,6 @@ function Space(options){
   var options = options || defaults;
   var camera, scene, renderer, controls, space, earth, vr;
   var WIDTH, HEIGHT;
-
-  console.log(options);
 
   // Enable all of the things.
   this.init = function () {
@@ -56,7 +68,6 @@ function Space(options){
       scope.vr = new THREE.StereoEffect( scope.renderer );
       scope.vr.setSize( window.innerWidth, window.innerHeight );
     }
-
   }
 
   // Set up the camera and position.
