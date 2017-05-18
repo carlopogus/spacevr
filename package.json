@@ -12,5 +12,8 @@
     "express": "^4.15.2",
     "socket.io": "^2.0.1",
     "three": "^0.85.2"
+  },
+  "devDependencies": {
+    "node-inspector": "^1.1.1"
   }
 }

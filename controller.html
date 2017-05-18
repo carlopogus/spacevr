@@ -13,7 +13,44 @@
       // node js stuffs.
       (function () {
 
+        var id = location.href.substr(location.href.lastIndexOf('/') + 1);
         var groundControl = io.connect(location.origin + '/controller');
+
+        var keys = {
+          up: 0,
+          down: 0,
+          left: 0,
+          right: 0
+        }
+
+        var _keydown = function (event) {
+          switch ( event.keyCode ) {
+            case 38: keys.up = 1; break;
+            case 40: keys.down = 1; break;
+            case 37: keys.left = 1; break;
+            case 39: keys.right = 1; break;
+          }
+          groundControl.emit('keys', {
+            id: id,
+            keys: keys
+          });
+        }
+
+        var _keyup = function (event) {
+          switch ( event.keyCode ) {
+            case 38: keys.up = 0; break;
+            case 40: keys.down = 0; break;
+            case 37: keys.left = 0; break;
+            case 39: keys.right = 0; break;
+          }
+          groundControl.emit('keys', {
+            id: id,
+            keys: keys
+          });
+        }
+
+        window.addEventListener( 'keydown', _keydown, false );
+        window.addEventListener( 'keyup',   _keyup, false );
 
       })()
 

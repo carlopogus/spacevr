@@ -9,7 +9,7 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/controler/:clientId', function (req, res) {
+app.get('/controller/:clientId', function (req, res) {
   res.sendFile(__dirname + '/controller.html');
   // res.send(req.params)
 })
@@ -21,7 +21,9 @@ var space = io
   .of('/space')
   .on('connection', function (socket) {
     console.log('someone connected from space');
-    socket.emit('clientId', socket.id);
+    console.log(socket.client.id);
+
+    socket.emit('clientId', socket.client.id);
   });
 
 var controller = io
@@ -29,14 +31,20 @@ var controller = io
   .on('connection', function (socket) {
     console.log('someone connected from ground control');
     socket.emit('clientId', socket.id);
+
+    socket.on('keys', function (data) {
+      console.log(data);
+      io.sockets.connected[data.id].emit('keys', data.keys);
+    });
+
   });
 
 
 
 io.on('connection', function (socket) {
-  console.log(socket.id);
+  // console.log(socket.id);
   // console.log('client connected ' + socket.id);
-  socket.emit('clientId', socket.id);
+  // socket.emit('clientId', socket.id);
   // socket.on('my other event', function (data) {
   //   console.log(data);
   // });
