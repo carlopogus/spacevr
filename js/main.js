@@ -1,30 +1,11 @@
-
-// node js stuffs.
-(function () {
-  var clientId = document.createElement("div");
-  clientId.setAttribute("id", 'client-id');
-  document.body.appendChild(clientId);
-
-  var space = io.connect(location.origin + '/space');
-  space.on('clientId', function (data) {
-    var div = document.getElementById('client-id');
-    div.innerHTML = data;
-  });
-
-  space.on('keys', function (data) {
-    var div = document.getElementById('client-id');
-    div.innerHTML = data;
-  });
-
-})()
-
 function Space(options){
 
   var scope = this;
   var defaults = {vr: false};
   var options = options || defaults;
-  var camera, scene, renderer, controls, space, earth, vr;
+  var camera, scene, renderer, controls, nodeControls, space, earth, vr;
   var WIDTH, HEIGHT;
+  var clock = new THREE.Clock();
 
   // Enable all of the things.
   this.init = function () {
@@ -56,6 +37,9 @@ function Space(options){
     }
 
     scope.controls.update();
+    var delta = clock.getDelta();
+    // console.log(delta);
+    scope.nodeControls.update(delta);
   }
 
   // Update on resize.
@@ -100,7 +84,8 @@ function Space(options){
   var setStars = function () {
     var geometry  = new THREE.SphereGeometry(500, 32, 32);
     var material  = new THREE.MeshBasicMaterial();
-    material.map   = THREE.ImageUtils.loadTexture('images/stars.png');
+    var texture =  THREE.ImageUtils.loadTexture("images/stars.png", {}, function(){});
+    material.map = texture;
     material.side  = THREE.BackSide;
     scope.space  = new THREE.Mesh(geometry, material);
     scope.scene.add(scope.space);
@@ -113,7 +98,7 @@ function Space(options){
     var material = new THREE.MeshPhongMaterial({
       map: texture,
       bumpMap: bmap,
-      bumpScale: 0.01,
+      bumpScale: 0.01
     });
     scope.earth = new THREE.Mesh( geometry, material );
     scope.earth.position.set(0, 0, 0);
@@ -123,8 +108,34 @@ function Space(options){
   // Setup the device orientation controls.
   var setControls = function () {
     scope.controls = new THREE.DeviceOrientationControls(scope.camera);
+    scope.nodeControls = new THREE.NodeFlyControls(scope.camera, options.nodeSocket);
   }
 }
 
-var space = new Space({vr: true});
-space.init();
+// node js stuffs.
+(function () {
+  var clientId = document.createElement("div");
+  clientId.setAttribute("id", 'client-id');
+  document.body.appendChild(clientId);
+
+  var socket = io.connect();
+
+  socket.on('connect', function() {
+    var room = socket.id;
+    room = 'test';
+    var div = document.getElementById('client-id');
+    div.innerHTML = room;
+    socket.emit('room', room);
+  });
+
+  // socket.on('incomming-keys', function (data) {
+  //   console.log(data);
+  // });
+
+
+  var space = new Space({vr: true, nodeSocket: socket});
+  space.init();
+
+
+})();
+

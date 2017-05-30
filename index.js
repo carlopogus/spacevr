@@ -16,36 +16,13 @@ app.get('/controller/:clientId', function (req, res) {
 
 app.use(express.static('.'));
 
-
-var space = io
-  .of('/space')
-  .on('connection', function (socket) {
-    console.log('someone connected from space');
-    console.log(socket.client.id);
-
-    socket.emit('clientId', socket.client.id);
-  });
-
-var controller = io
-  .of('/controller')
-  .on('connection', function (socket) {
-    console.log('someone connected from ground control');
-    socket.emit('clientId', socket.id);
-
-    socket.on('keys', function (data) {
-      console.log(data);
-      io.sockets.connected[data.id].emit('keys', data.keys);
-    });
-
-  });
-
-
-
 io.on('connection', function (socket) {
-  // console.log(socket.id);
-  // console.log('client connected ' + socket.id);
-  // socket.emit('clientId', socket.id);
-  // socket.on('my other event', function (data) {
-  //   console.log(data);
-  // });
+  // join sockets to rooms.
+  socket.on('room', function (room) {
+    socket.join(room);
+  });
+  // on incomming keys from controller, emit to space.
+  socket.on('keys', function (data) {
+    io.sockets.in(data.id).emit('incomming-keys', data.keys);
+  });
 });

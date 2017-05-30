@@ -14,7 +14,11 @@
       (function () {
 
         var id = location.href.substr(location.href.lastIndexOf('/') + 1);
-        var groundControl = io.connect(location.origin + '/controller');
+        var groundControl = io.connect();
+
+        groundControl.on('connect', function() {
+          groundControl.emit('room', id);
+        });
 
         var keys = {
           up: 0,
